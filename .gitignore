@@ -8,8 +8,8 @@ __pycache__/
 # macOS
 .DS_Store
 
-# Audio files (except demo samples)
+# Audio files (except demo sample)
 *.mp3
 *.m4a
-!samples/*.wav
+!samples/wuhan-market.wav
 *.flac
