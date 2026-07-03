@@ -6,7 +6,7 @@
 
 **Turn real recordings into place-based historical fiction audio stories.**
 
-Echoes of Place is an agent-assisted audio storytelling scaffold. It takes a real recording, extracts or confirms its time and location, retrieves place-time context, and helps generate a historical fiction story grounded in the recording's sound cues.
+Echoes of Place is an agent-assisted audio storytelling scaffold. It takes a real recording, extracts or confirms its time and location, prepares place-time context queries, and helps generate a historical fiction story grounded in the recording's sound cues.
 
 The story is fictional. The place, time anchor, and historical background are treated as grounding constraints.
 
@@ -30,6 +30,19 @@ Both stories begin with 15 seconds of the original recording, then the narration
 ### What this repo is
 
 This is an **agent‑assisted scaffold** — the CLI handles metadata extraction, grounding, context queries, and output slots. Story writing, TTS narration, and final mixing are currently performed by an AI agent (Cola) using the modules in this repo.
+
+### Current status
+
+| Part | Status |
+|---|---|
+| Metadata / duration extraction | CLI |
+| Time + location anchoring | CLI |
+| Context query generation | CLI |
+| Actual context retrieval | Agent-assisted |
+| Story seed + script writing | Agent-assisted |
+| TTS narration | External provider (ListenHub) / agent-assisted |
+| Mixing | Module available, used in demos |
+| Final audio demos | Available in [v0.4-demos release](https://github.com/resonantravine/geo-sonic-story/releases/tag/v0.4-demos) |
 
 ### What `run.py` does
 
@@ -81,7 +94,7 @@ field recording
   → metadata extraction (ExifTool → ffprobe → filename → filesystem)
   → anchor extraction (sound cues from audio + time/location anchors)
   → story‑time resolution (when in history)
-  → context retrieval (place history + period facts)
+  → context query preparation + agent-assisted retrieval
   → brief building (place‑time‑audio vision)
   → [agent] story seed generation (2 seeds with audio motifs)
   → [agent] script generation (concrete sensory storytelling, no meta markers)
@@ -105,7 +118,7 @@ field recording
 | `voice_generator.py` | TTS / podcast narration generation slots |
 | `voice_style.py` | 3‑level dialect strategy |
 | `audio_mixer.py` | Stem‑based ffmpeg mixing (narration + original + ambience) |
-| `audio_relevance_qa.py` | Storytelling quality validation (40+ checks) |
+| `audio_relevance_qa.py` | Heuristic QA checklist for audio-grounded storytelling |
 
 ## Quick start
 
@@ -132,9 +145,10 @@ Download the demo recording from BBC Sound Effects:
 Requirements:
 ```bash
 pip install -r requirements.txt
+brew install ffmpeg
 ```
 
-Optional: install ExifTool for best metadata extraction:
+Optional, for richer metadata extraction:
 ```bash
 brew install exiftool  # macOS
 ```
