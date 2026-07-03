@@ -1,8 +1,10 @@
-# Geo-Sonic Story
+# Echoes of Place
 
-Turn real audio recordings into fictional place‑time‑grounded audio stories.
+> 地方回声：把实地录音转化为基于地点与年代的历史虚构声音故事。
 
-A recording of a street corner becomes a two‑part audio story — one anchored in the sounds you captured, another woven from the history of the place. The original recording opens the piece, then fades into a warm single‑narrator telling over a bed of real ambience.
+Turn field recordings into place‑based historical fiction audio stories.
+
+A creator workflow. A recording of a street corner becomes a two‑part audio story — one anchored in the sounds you captured, another woven from the history of the place. The original recording opens the piece, then fades into a warm single‑narrator telling over a bed of real ambience.
 
 ## What this repo is
 
@@ -53,7 +55,7 @@ Coordinates from this demo geocoder are approximate and should not be relied on 
 ## Pipeline
 
 ```
-original recording
+field recording
   → metadata extraction (ExifTool → ffprobe → filename → filesystem)
   → anchor extraction (sound cues from audio + time/location anchors)
   → story‑time resolution (when in history)
