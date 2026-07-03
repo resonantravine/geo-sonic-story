@@ -1,0 +1,15 @@
+# Generated outputs
+runs/
+
+# Python
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Audio files
+*.mp3
+*.m4a
+*.wav
+*.flac
