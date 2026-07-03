@@ -25,12 +25,13 @@ This is an agent-assisted pipeline. Cola executes every step — the modules pro
 
 Ask the user for:
 - **audio file** (required) — absolute path
-- **location** (required) — place name, e.g. "国子监", "武汉郊外"
+- **location** (required) — place name, e.g. "国子监", "密西西比河"
 - **story time** (required) — "30 years ago", "2016", "the 1980s"
+- **story clue / keyword** (optional) — what the recording is about, e.g. "搭载鸣笛装置的蒸汽游船"
 - **sound cues** (optional) — comma-separated, e.g. "footsteps, chatter, vendors"
 - **language** (optional, default zh) — zh or en
 
-If the user only gives an audio file, ask for location and story time before proceeding.
+If the user only gives an audio file, ask for location and story time before proceeding. Also prompt: "这段录音里有什么声音？或者你想让故事围绕什么展开？"
 
 ### Step 2: Metadata Extraction
 
@@ -112,7 +113,7 @@ Write the full narration script. **CRITICAL rules:**
 - **No "故事一 / 故事二" markers** in the script
 - **No meta/abstract words**: 历史背景, 资料, 地点, 生成, 还原, 基于, 检索
 - **Yes concrete sensory**: 车声, 脚步, 青砖, 槐树, 马扎, 门帘, 搪瓷缸子, 蒲扇, 拖鞋, 水声
-- **Natural disclaimer**: "这是一个用今天这段录音编的小故事。人是编的，声音是真的。" woven in naturally at the beginning, not a formal statement
+- **Natural opening**: "这是一段来自XXX的声音，我来给你讲一个在那里发生的XXXX年代的故事吧。" — warm, inviting, establishes place and time immediately. Do NOT use the old "这是一个用今天这段录音编的小故事" format.
 - **Two story segments** flowing naturally, no explicit separators
 - **Natural spoken long sentences** — not one line per sentence
 - **~60-90s total** narrative text
@@ -126,9 +127,12 @@ Generate the narration audio using the podcast engine with a single narrator:
 ```python
 # Use tool_call with gen_podcast
 # Two-stage flow:
-# 1. create_podcast_text (to get episode_id)
-# 2. create_podcast_audio with custom scripts — feed the v0.4 story text
-#    as line-by-line scripts, all assigned to one speaker (nvdiyin-7b293152 / 暮歌)
+# 1. create_podcast_text (to get episode_id) — use placeholder source_text
+# 2. create_podcast_audio with custom scripts — feed the story text
+#    as line-by-line scripts, all assigned to one speaker:
+#    - Default narrator: 常四爷 (shuoshurennan-fdfa85f9) — mature, magnetic male voice,
+#      slow pace, historical/documentary style, rich narrative tone
+#    - Fallback: 古今先生 (pingshu-c7c18f5a) — deep, resonant, traditional storytelling
 ```
 
 Key: the podcast engine generates discussion by default. You MUST use `create_podcast_audio` with custom `scripts` — one speaker, the story text broken into natural lines. Do NOT let it generate its own analysis content.
