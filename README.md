@@ -11,7 +11,7 @@ This is an **agent‑assisted scaffold** — the CLI handles metadata extraction
 ### What `run.py` does
 
 ```bash
-python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago"
+python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016"
 ```
 
 Outputs:
@@ -36,7 +36,7 @@ The AI agent then:
 ### Full scaffold mode
 
 ```bash
-python run.py --audio <file> --location <place> --story-time <period> --full-scaffold
+python run.py --audio <file> --location "国子监" --story-time "2016" --full-scaffold
 ```
 
 Full scaffold mode does **not** generate the final story. It creates all file slots and QA placeholders for the complete agent-assisted pipeline (including `mix_report.json` and `audio_relevance_qa.json`).
@@ -87,13 +87,13 @@ original recording
 
 ```bash
 # Grounding package only
-python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago"
+python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016"
 
 # Full scaffold (all output slots, no final audio)
-python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago" --full-scaffold
+python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016" --full-scaffold
 
 # Override detected recording time
-python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago" --recording-time "2026-06-27T19:48:39"
+python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016" --recording-time "2016-07-08T14:00:00"
 ```
 
 Requirements:
