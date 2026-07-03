@@ -1,10 +1,14 @@
 # Echoes of Place
 
-> 地方回声：把实地录音转化为基于地点与年代的历史虚构声音故事。
+> Repo slug: `geo-sonic-story`
 
-Turn field recordings into place‑based historical fiction audio stories.
+**把一段真实录音，转化为基于地点、年代和声音线索的历史虚构声音故事。**
 
-A creator workflow. A recording of a street corner becomes a two‑part audio story — one anchored in the sounds you captured, another woven from the history of the place. The original recording opens the piece, then fades into a warm single‑narrator telling over a bed of real ambience.
+**Turn real recordings into place-based historical fiction audio stories.**
+
+Echoes of Place is an agent-assisted audio storytelling scaffold. It takes a real recording, extracts or confirms its time and location, retrieves place-time context, and helps generate a two-part historical fiction story grounded in the recording's sound cues.
+
+The story is fictional. The place, time anchor, and historical background are treated as grounding constraints.
 
 ## What this repo is
 
