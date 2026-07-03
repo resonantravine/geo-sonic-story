@@ -43,7 +43,7 @@ The AI agent then:
 ### Full scaffold mode
 
 ```bash
-python run.py --audio <file> --location "国子监" --story-time "2016" --full-scaffold
+python run.py --audio samples/wuhan-market.wav --location "武汉郊外" --story-time "30 years ago" --full-scaffold
 ```
 
 Full scaffold mode does **not** generate the final story. It creates all file slots and QA placeholders for the complete agent-assisted pipeline (including `mix_report.json` and `audio_relevance_qa.json`).
