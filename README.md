@@ -6,11 +6,28 @@
 
 **Turn real recordings into place-based historical fiction audio stories.**
 
-Echoes of Place is an agent-assisted audio storytelling scaffold. It takes a real recording, extracts or confirms its time and location, retrieves place-time context, and helps generate a two-part historical fiction story grounded in the recording's sound cues.
+Echoes of Place is an agent-assisted audio storytelling scaffold. It takes a real recording, extracts or confirms its time and location, retrieves place-time context, and helps generate a historical fiction story grounded in the recording's sound cues.
 
 The story is fictional. The place, time anchor, and historical background are treated as grounding constraints.
 
-## What this repo is
+## Demo
+
+Two complete audio stories — source recording + narrated final mix:
+
+| | Mississippi Steam Boat | Wuhan Market |
+|---|---|---|
+| **Story** | 1985, a paddle steamer on the Mississippi River with an old bargeman and a boy | 1994, a mother and daughter at a rural vegetable market on the outskirts of Wuhan |
+| **Opener** | A steam whistle echoing across the water | Footsteps, chatter, and vendors in the morning mist |
+| **Narrator** | 常四爷 — mature, magnetic, slow storytelling voice | 常四爷 |
+| **Listen** | [Download →](https://github.com/resonantravine/geo-sonic-story/releases/tag/v0.4-demos) | [Download →](https://github.com/resonantravine/geo-sonic-story/releases/tag/v0.4-demos) |
+
+Both stories begin with 15 seconds of the original recording, then the narration enters over a soft ambience bed, and each closes with a warm ending that brings the listener back to the present moment.
+
+**[📦 All demos + source recordings → v0.4-demos release](https://github.com/resonantravine/geo-sonic-story/releases/tag/v0.4-demos)**
+
+## How it works
+
+### What this repo is
 
 This is an **agent‑assisted scaffold** — the CLI handles metadata extraction, grounding, context queries, and output slots. Story writing, TTS narration, and final mixing are currently performed by an AI agent (Cola) using the modules in this repo.
 
