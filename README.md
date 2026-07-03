@@ -17,7 +17,8 @@ This is an **agent‑assisted scaffold** — the CLI handles metadata extraction
 ### What `run.py` does
 
 ```bash
-python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016"
+# Demo: BBC archive recording of Wuhan vegetable market, 1990s
+python run.py --audio samples/wuhan-market.wav --location "武汉郊外" --story-time "30 years ago"
 ```
 
 Outputs:
@@ -92,15 +93,24 @@ field recording
 ## Quick start
 
 ```bash
-# Grounding package only
-python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016"
+# Grounding package (demo)
+python run.py --audio samples/wuhan-market.wav --location "武汉郊外" --story-time "30 years ago"
 
 # Full scaffold (all output slots, no final audio)
-python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016" --full-scaffold
+python run.py --audio samples/wuhan-market.wav --location "武汉郊外" --story-time "30 years ago" --full-scaffold
 
-# Override detected recording time
-python run.py --audio <your_recording.mp3> --location "国子监" --story-time "2016" --recording-time "2016-07-08T14:00:00"
+# With sound cues
+python run.py --audio samples/wuhan-market.wav --location "武汉郊外" --story-time "30 years ago" --sound-cues "footsteps, chatter, vendors"
 ```
+
+### Demo sample
+
+Download the demo recording from BBC Sound Effects:
+
+1. Visit [BBC Sound Effects](https://sound-effects.bbcrewind.co.uk/)
+2. Search: `wuhan vegetable market rural`
+3. Download **"China - Wuhan: Vegetable market (rural area near Wuhan)"** (3:06, WAV)
+4. Save as `samples/wuhan-market.wav`
 
 Requirements:
 ```bash
