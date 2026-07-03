@@ -45,8 +45,21 @@ def build_anchor(audio_file: str, duration_sec: float,
                  location: Optional[str] = None,
                  lat: Optional[float] = None,
                  lon: Optional[float] = None,
+                 location_source: Optional[str] = None,
                  sound_cues: Optional[list[str]] = None) -> AnchorData:
-    """Build anchor data from user-provided inputs."""
+    """Build anchor data from extracted or user-provided inputs.
+
+    location_source should reflect the real provenance:
+    'embedded_gps', 'geocoded_from_user_input', 'manual_coordinates',
+    'manual' (no coordinates), or None.
+    """
+    # Determine real source — never guess "gps"
+    if location_source is None:
+        if lat is not None and lon is not None:
+            location_source = "manual_coordinates"
+        else:
+            location_source = "manual"
+
     return AnchorData(
         audio_file=audio_file,
         duration_sec=duration_sec,
@@ -54,6 +67,6 @@ def build_anchor(audio_file: str, duration_sec: float,
         location_text=location,
         lat=lat,
         lon=lon,
-        location_source="gps" if (lat is not None and lon is not None) else "manual",
+        location_source=location_source,
         sound_cues=sound_cues or [],
     )

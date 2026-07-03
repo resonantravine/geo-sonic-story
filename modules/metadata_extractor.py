@@ -466,8 +466,13 @@ def extract(audio_file: str,
 # ── Simple geocoding (place name → lat/lon) ──
 
 def _geocode_place(place: str) -> Optional[tuple[float, float]]:
-    """Very simple geocoding using a built-in lookup for common places.
-    In production, use a real geocoding API (Google, Nominatim, etc.)
+    """DEMO geocoder — hard-coded lookup for a few known places.
+
+    This is NOT a real geocoder. It only matches exact/substring entries
+    in a hand-maintained dictionary. In production, replace with:
+    - Nominatim (OpenStreetMap, free, rate-limited)
+    - Google Geocoding API
+    - Amap (高德) / Baidu Maps for China
     """
     # Beijing landmarks
     known = {
@@ -478,6 +483,9 @@ def _geocode_place(place: str) -> Optional[tuple[float, float]]:
         "新风街": (39.9510, 116.3612),  # Approximate
         "北京西城区新风街": (39.9510, 116.3612),
         "德胜门外": (39.9530, 116.3720),
+        "国子监": (39.9452, 116.4139),
+        "北京国子监": (39.9452, 116.4139),
+        "Beijing, 国子监": (39.9452, 116.4139),
     }
 
     # Exact match

@@ -7,8 +7,8 @@ grounded in a real place and a chosen historical time.
 Default mode (grounding package):
     python run.py --audio <file> --location <place> --story-time <period>
 
-Full pipeline (agent-assisted):
-    python run.py --audio <file> --location <place> --story-time <period> --full
+Full scaffold mode (all output slots for agent-assisted pipeline):
+    python run.py --audio <file> --location <place> --story-time <period> --full-scaffold
 
 For complete story generation (narration, TTS, mixing), see the
 agent-assisted workflow documented in README.md.
@@ -37,7 +37,7 @@ def parse_args():
     parser.add_argument("--story-time", required=True,
                         help="Story time period, e.g. '100 years ago', 'the 1980s', '2010'")
     parser.add_argument("--recording-time", default=None,
-                        help="Recording datetime, ISO format. Default: audio metadata or now.")
+                        help="Recording datetime, ISO format. Overrides detected metadata. Sets source=user_override, confidence=high.")
     parser.add_argument("--sound-cues", default="",
                         help="Comma-separated sound cues, e.g. 'train, footsteps, birds'")
     parser.add_argument("--language", default="zh", choices=["zh", "en"],
@@ -46,8 +46,8 @@ def parse_args():
                         help="Story style (default: documentary-fiction)")
     parser.add_argument("--output-dir", default=None,
                         help="Output directory. Default: runs/<run-id>/")
-    parser.add_argument("--full", action="store_true",
-                        help="Run full pipeline including seeds, script, mixing slots, and QA")
+    parser.add_argument("--full-scaffold", action="store_true",
+                        help="Create all output slots for agent-assisted pipeline (does NOT generate final audio)")
     parser.add_argument("--tts", action="store_true",
                         help="Attempt TTS voice generation (requires provider)")
     return parser.parse_args()
@@ -63,7 +63,7 @@ def main():
     print(f"\n{'='*60}")
     print(f"  Geo-Sonic Story — 地方回声")
     print(f"  Run ID: {run_id}")
-    print(f"  Mode: {'full' if args.full else 'grounding package'}")
+    print(f"  Mode: {'full-scaffold' if args.__dict__.get('full_scaffold') else 'grounding package'}")
     print(f"  Output: {output_dir}")
     print(f"{'='*60}\n")
 
@@ -76,12 +76,30 @@ def main():
         )
         print(f"      File: {audio_meta.audio_file}")
         print(f"      Duration: {audio_meta.duration_sec:.1f}s")
-        if audio_meta.recording_time:
+
+        # Handle --recording-time override
+        detected_recording_time = audio_meta.recording_time
+        detected_recording_time_source = audio_meta.recording_time_source
+        detected_recording_time_confidence = audio_meta.recording_time_confidence
+
+        if args.recording_time:
+            audio_meta.recording_time = args.recording_time
+            audio_meta.recording_time_source = "user_override"
+            audio_meta.recording_time_confidence = "high"
+            audio_meta.user_override_time = args.recording_time
             print(f"      Recording time: {audio_meta.recording_time} "
-                  f"(source: {audio_meta.recording_time_source}, "
-                  f"confidence: {audio_meta.recording_time_confidence})")
+                  f"(source: user_override, confidence: high)")
+            print(f"      Detected recording time: {detected_recording_time} "
+                  f"(source: {detected_recording_time_source}, "
+                  f"confidence: {detected_recording_time_confidence})")
+        else:
+            if audio_meta.recording_time:
+                print(f"      Recording time: {audio_meta.recording_time} "
+                      f"(source: {audio_meta.recording_time_source}, "
+                      f"confidence: {audio_meta.recording_time_confidence})")
+
         if audio_meta.lat is not None:
-            print(f"      GPS: {audio_meta.lat:.4f}, {audio_meta.lon:.4f} "
+            print(f"      Location: {audio_meta.lat:.4f}, {audio_meta.lon:.4f} "
                   f"(source: {audio_meta.location_source}, "
                   f"confidence: {audio_meta.location_confidence})")
         if audio_meta.needs_manual_location:
@@ -92,26 +110,20 @@ def main():
         print(f"      ERROR: {e}")
         return 1
 
-    # Save full metadata
-    meta_dict = {
-        "audio_file": audio_meta.audio_file,
-        "duration_sec": audio_meta.duration_sec,
-        "recording_time": audio_meta.recording_time,
-        "recording_time_source": audio_meta.recording_time_source,
-        "recording_time_confidence": audio_meta.recording_time_confidence,
-        "lat": audio_meta.lat, "lon": audio_meta.lon,
-        "location_source": audio_meta.location_source,
-        "location_confidence": audio_meta.location_confidence,
-        "needs_manual_location": audio_meta.needs_manual_location,
-        "location_note": audio_meta.location_note,
-    }
+    # Save full metadata using AudioMetadata.to_dict() + override fields
+    meta_dict = audio_meta.to_dict()
+    # Add override tracking fields
+    meta_dict["detected_recording_time"] = detected_recording_time
+    meta_dict["detected_recording_time_source"] = detected_recording_time_source
+    meta_dict["detected_recording_time_confidence"] = detected_recording_time_confidence
+    meta_dict["user_override_time"] = audio_meta.user_override_time
     Path(output_dir, "metadata.json").write_text(
         json.dumps(meta_dict, indent=2, ensure_ascii=False)
     )
 
     # ── Step 2: Anchor Extractor ──
     print("\n[2/7] Building anchor...")
-    recording_time = args.recording_time or audio_meta.recording_time or NOW.isoformat()
+    recording_time = audio_meta.recording_time or NOW.isoformat()
     sound_cues = [s.strip() for s in args.sound_cues.split(",") if s.strip()]
     anchor = anchor_extractor.build_anchor(
         audio_file=args.audio,
@@ -120,10 +132,12 @@ def main():
         location=args.location,
         lat=audio_meta.lat,
         lon=audio_meta.lon,
+        location_source=audio_meta.location_source,
         sound_cues=sound_cues,
     )
     anchor.save(f"{output_dir}/anchor.json")
     print(f"      Location: {anchor.location_text}")
+    print(f"      Location source: {anchor.location_source}")
     print(f"      Sound cues: {anchor.sound_cues}")
 
     # ── Step 3: Story Time Resolver ──
@@ -164,15 +178,14 @@ def main():
     print(f"      Saved to place_time_brief.md")
 
     # ── Step 6: Seeds, Script, Mixing, QA ──
-    if args.full:
-        print("\n[6/7] Running full pipeline...")
+    is_full = args.__dict__.get('full_scaffold')
+    if is_full:
+        print("\n[6/7] Creating full-scaffold output slots...")
 
-        # Story seeds
         seeds = story_seed_generator.create_empty_collection()
         seeds.save(f"{output_dir}/story_seeds.json")
         print("      Created story_seeds.json (empty — fill via agent or provider)")
 
-        # Script placeholder
         placeholder_script = script_generator.Script(
             title="(pending)",
             duration_target_sec=90,
@@ -183,7 +196,6 @@ def main():
         placeholder_script.save_json(f"{output_dir}/script.json")
         placeholder_script.save_markdown(f"{output_dir}/script.md")
 
-        # Mixing slots
         mix_report = audio_mixer.MixReport(
             original_audio_used=True,
             generated_ambience_used=False,
@@ -195,7 +207,6 @@ def main():
         mix_report.save(f"{output_dir}/mix_report.json")
         print("      Created mix_report.json (empty — fill after narration generation)")
 
-        # QA slots
         qa = audio_relevance_qa.AudioRelevanceQA(
             original_audio_mixed=False,
             audio_relevance_score=0.0,
@@ -204,7 +215,6 @@ def main():
         qa.save(f"{output_dir}/audio_relevance_qa.json")
         print("      Created audio_relevance_qa.json (empty — fill after script generation)")
 
-        # TTS
         if args.tts:
             voice_generator.note_not_configured(f"{output_dir}/output")
             print("      ⓘ TTS requires provider integration — wrote TTS_NOT_CONFIGURED.md")
@@ -229,13 +239,13 @@ def main():
     # ── Step 7: Summary ──
     print(f"\n[7/7] Summary")
     print(f"{'='*60}")
-    if args.full:
-        print(f"  FULL PIPELINE SCAFFOLD COMPLETE")
+    if is_full:
+        print(f"  FULL-SCAFFOLD COMPLETE (slots only, no final audio)")
     else:
         print(f"  GROUNDING PACKAGE COMPLETE")
     print(f"{'='*60}")
 
-    if not args.full:
+    if not is_full:
         print(f"\nNext steps (agent-assisted):")
         print(f"  1. Run search queries from retrieved_context.json")
         print(f"  2. Fill entities & period context → retrieved_context.json")
@@ -245,7 +255,7 @@ def main():
         print(f"  6. Generate voice audio via TTS provider")
         print(f"  7. Mix narration + original audio → output/")
         print(f"  8. Run QA validation → audio_relevance_qa.json")
-        print(f"\nOr re-run with --full for complete output slots.")
+        print(f"\nOr re-run with --full-scaffold for complete output slots.")
     else:
         print(f"\nNext steps (agent-assisted):")
         print(f"  1. Run search queries and fill retrieved_context.json")

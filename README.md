@@ -8,15 +8,15 @@ A recording of a street corner becomes a two‑part audio story — one anchored
 
 This is an **agent‑assisted scaffold** — the CLI handles metadata extraction, grounding, context queries, and output slots. Story writing, TTS narration, and final mixing are currently performed by an AI agent (Cola) using the modules in this repo.
 
-### Current CLI (what `run.py` does right now)
+### What `run.py` does
 
 ```bash
-python run.py --audio <your_recording.mp3> --location "Beijing, 国子监" --story-time "30 years ago"
+python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago"
 ```
 
 Outputs:
-- `metadata.json` — recording time, GPS/location, duration, confidence levels (ExifTool → ffprobe → filename → filesystem fallback)
-- `anchor.json` — sound cues, time anchor, location anchor
+- `metadata.json` — recording time (with source, confidence, detected vs. override), GPS/location (with source, precision), duration
+- `anchor.json` — sound cues, time anchor, location anchor (with real location source, never mislabeled as "gps")
 - `story_time.json` — resolved historical period
 - `retrieved_context.json` — search queries for place entities + period facts
 - `place_time_brief.md` — assembled place‑time‑audio vision
@@ -36,10 +36,19 @@ The AI agent then:
 ### Full scaffold mode
 
 ```bash
-python run.py --audio <file> --location <place> --story-time <period> --full
+python run.py --audio <file> --location <place> --story-time <period> --full-scaffold
 ```
 
-Creates all output slots including `mix_report.json` and `audio_relevance_qa.json` for the complete pipeline.
+Full scaffold mode does **not** generate the final story. It creates all file slots and QA placeholders for the complete agent-assisted pipeline (including `mix_report.json` and `audio_relevance_qa.json`).
+
+### ⚠️ Geocoding note
+
+The built-in geocoder in `metadata_extractor.py` is a **demo lookup** with a small hand‑maintained dictionary of known places. It is not a real geocoding service. In production, replace `_geocode_place()` with:
+- [Nominatim](https://nominatim.org) (OpenStreetMap, free, rate‑limited)
+- [Google Geocoding API](https://developers.google.com/maps/documentation/geocoding)
+- [Amap / 高德](https://lbs.amap.com) or [Baidu Maps](https://lbsyun.baidu.com) for China
+
+Coordinates from this demo geocoder are approximate and should not be relied on for accuracy.
 
 ## Pipeline
 
@@ -61,9 +70,9 @@ original recording
 
 | Module | Role |
 |---|---|
-| `metadata_extractor.py` | Time, location, duration from audio file (ExifTool/ffprobe) |
+| `metadata_extractor.py` | Time, location, duration (ExifTool/ffprobe, demo geocoder) |
 | `audio_ingest.py` | Read and normalize input audio |
-| `anchor_extractor.py` | Identify salient sound cues and time/location anchors |
+| `anchor_extractor.py` | Sound cues + time/location anchors (preserves real location_source) |
 | `story_time_resolver.py` | Resolve "30 years ago" → concrete year |
 | `context_retriever.py` | Place entities + period facts search queries |
 | `brief_builder.py` | Assemble place‑time‑audio vision |
@@ -78,10 +87,13 @@ original recording
 
 ```bash
 # Grounding package only
-python run.py --audio <your_recording.mp3> --location "Beijing, 国子监" --story-time "30 years ago"
+python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago"
 
-# Full scaffold (all output slots)
-python run.py --audio <your_recording.mp3> --location "Beijing, 国子监" --story-time "30 years ago" --full
+# Full scaffold (all output slots, no final audio)
+python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago" --full-scaffold
+
+# Override detected recording time
+python run.py --audio <your_recording.mp3> --location "北京西城区新风街" --story-time "30 years ago" --recording-time "2026-06-27T19:48:39"
 ```
 
 Requirements:
