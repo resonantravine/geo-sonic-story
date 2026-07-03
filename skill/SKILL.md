@@ -116,7 +116,8 @@ Write the full narration script. **CRITICAL rules:**
 - **Natural opening**: "这是一段来自XXX的声音，我来给你讲一个在那里发生的XXXX年代的故事吧。" — warm, inviting, establishes place and time immediately. Do NOT use the old "这是一个用今天这段录音编的小故事" format.
 - **Two story segments** flowing naturally, no explicit separators
 - **Natural spoken long sentences** — not one line per sentence
-- **~60-90s total** narrative text
+- **~90-120s total** narrative text
+- **ALWAYS end with a proper close**: bring the story back to the present recording, e.g. "录音放完了。那条河还在流，那艘船还在另一个夏天里慢慢地开着。" The ending should create a gentle closure — the recording stops, but the place and its stories continue in another time. Never end abruptly mid-sentence.
 
 Save using `script_generator.Script` and `save_markdown()`.
 
