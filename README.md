@@ -25,6 +25,28 @@ Both stories begin with 15 seconds of the original recording, then the narration
 
 **[📦 All demos + source recordings → v0.4-demos release](https://github.com/resonantravine/geo-sonic-story/releases/tag/v0.4-demos)**
 
+## Try It: Cola Skill (One-Click Install)
+
+Echoes of Place is available as a Cola skill — drop in a recording, say a place and a time, and Cola runs the full pipeline.
+
+[skill/SKILL.md](skill/SKILL.md)
+
+### Install
+
+```bash
+cp -r skill ~/.cola/skills/echoes-of-place
+```
+
+### Use
+
+Send a recording to Cola and say:
+
+> 用 Echoes of Place 处理这段录音。地点是北京国子监，时间是 2016 年 7 月。
+
+Cola will extract metadata, resolve the story time, research the place, generate a grounded story script, produce AI narration, and mix the final audio.
+
+---
+
 ## How it works
 
 ### What this repo is
